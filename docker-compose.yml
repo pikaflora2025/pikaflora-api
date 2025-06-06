@@ -1,0 +1,58 @@
+services:
+  pikaflora-api-dev:
+    container_name: pikaflora-api-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3001:3000'
+    volumes:
+      - .:/app
+    env_file:
+      - .env.dev
+    depends_on:
+      - postgres-api-dev
+    command: npm run start:dev
+
+  postgres-api-dev:
+    image: postgres:17
+    container_name: pikaflora-api-postgres-dev
+    restart: always
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: pikaflora-dev
+    volumes:
+      - pikaflora_api_pgdata_dev:/var/lib/postgresql/data
+
+  pikaflora-api-qa:
+    container_name: pikaflora-api-qa
+    build:
+      context: .
+      dockerfile: Dockerfile.qa
+    ports:
+      - '3002:3000'
+    env_file:
+      - .env.qa
+    depends_on:
+      - postgres-api-qa
+    command: npm run start:prod
+
+  postgres-api-qa:
+    image: postgres:17
+    container_name: pikaflora-api-postgres-qa
+    restart: always
+    ports:
+      - '5434:5432'
+    environment:
+      POSTGRES_USER: qa_user
+      POSTGRES_PASSWORD: qa_password
+      POSTGRES_DB: pikaflora-qa
+    volumes:
+      - pikaflora_api_pgdata_qa:/var/lib/postgresql/data
+
+volumes:
+  pikaflora_api_pgdata_dev:
+  pikaflora_api_pgdata_qa:
